@@ -16,11 +16,12 @@
         </style>
     </head>
     <body
-        class="bg-slate-900 text-white font-sans min-h-screen flex flex-col justify-between select-none overflow-hidden select-none"
+        class="bg-slate-900 text-white font-sans h-[100dvh] min-h-[100dvh] flex flex-col justify-between select-none overflow-x-hidden overflow-y-auto"
     >
         <div
             id="p1-panel"
             class="w-full py-4 px-6 bg-blue-900/40 border-b border-blue-500/30 flex justify-between items-center transition-all duration-300"
+            style="padding-top: calc(1rem + env(safe-area-inset-top))"
         >
             <div>
                 <h2
@@ -68,6 +69,7 @@
         <div
             id="p2-panel"
             class="w-full py-4 px-6 bg-red-900/40 border-t border-red-500/30 flex justify-between items-center transition-all duration-300"
+            style="padding-bottom: calc(1rem + env(safe-area-inset-bottom))"
         >
             <div>
                 <h2
