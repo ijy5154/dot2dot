@@ -92,7 +92,8 @@
             const ROWS = 4;
             const COLS = 4;
             const DOT_SIZE = 12; // 도트 크기 (px)
-            const CELL_SIZE = 65; // 박스 한 칸의 크기 (px, 모바일 화면에 맞춰 적절히 조절)
+            const baseCellSize = 65; // 기본 박스 한 칸 크기 (px)
+            let cellSize = baseCellSize;
 
             let currentPlayer = 1; // 1: Player 1 (Blue), 2: Player 2 (Red)
             let scores = { 1: 0, 2: 0 };
@@ -111,6 +112,49 @@
             const p1Indicator = document.getElementById("p1-turn-indicator");
             const p2Indicator = document.getElementById("p2-turn-indicator");
 
+            // 기기 화면에 맞춰 보드 셀 크기를 계산
+            function getResponsiveCellSize() {
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                const boardHorizontalPadding = 48; // board-container p-6 * 2
+                const mainHorizontalPadding = 32; // main p-4 * 2
+                const reservedWidth =
+                    boardHorizontalPadding + mainHorizontalPadding;
+
+                const topPanelHeight = p1Panel.offsetHeight;
+                const bottomPanelHeight = p2Panel.offsetHeight;
+                const mainVerticalPadding = 32; // main p-4 * 2
+                const titleAreaHeight = 84; // 타이틀 + 상태 텍스트 영역
+                const buttonAreaHeight = 72; // 버튼 높이 + 상단 마진
+                const extraGap = 20;
+
+                const availableBoardWidth = Math.max(
+                    220,
+                    viewportWidth - reservedWidth,
+                );
+                const availableBoardHeight = Math.max(
+                    220,
+                    viewportHeight -
+                        topPanelHeight -
+                        bottomPanelHeight -
+                        mainVerticalPadding -
+                        titleAreaHeight -
+                        buttonAreaHeight -
+                        extraGap,
+                );
+
+                const maxBoardSize = Math.min(
+                    availableBoardWidth,
+                    availableBoardHeight,
+                );
+                const calculatedCellSize = Math.floor(
+                    (maxBoardSize - DOT_SIZE) / COLS,
+                );
+
+                return Math.max(44, Math.min(baseCellSize, calculatedCellSize));
+            }
+
             // 초기화 함수
             function initGame() {
                 board.innerHTML = "";
@@ -119,10 +163,11 @@
                 hLines = {};
                 vLines = {};
                 boxes = {};
+                cellSize = getResponsiveCellSize();
 
                 // 보드 전체 사이즈 설정
-                board.style.width = `${COLS * CELL_SIZE + DOT_SIZE}px`;
-                board.style.height = `${ROWS * CELL_SIZE + DOT_SIZE}px`;
+                board.style.width = `${COLS * cellSize + DOT_SIZE}px`;
+                board.style.height = `${ROWS * cellSize + DOT_SIZE}px`;
 
                 // 1. 박스(지형) 레이어 먼저 생성
                 for (let r = 0; r < ROWS; r++) {
@@ -131,10 +176,10 @@
                         box.id = `box-${r}-${c}`;
                         box.className =
                             "absolute rounded transition-all duration-500 flex items-center justify-center font-black text-xl opacity-0 scale-75 bg-transparent";
-                        box.style.top = `${r * CELL_SIZE + DOT_SIZE}px`;
-                        box.style.left = `${c * CELL_SIZE + DOT_SIZE}px`;
-                        box.style.width = `${CELL_SIZE - DOT_SIZE}px`;
-                        box.style.height = `${CELL_SIZE - DOT_SIZE}px`;
+                        box.style.top = `${r * cellSize + DOT_SIZE}px`;
+                        box.style.left = `${c * cellSize + DOT_SIZE}px`;
+                        box.style.width = `${cellSize - DOT_SIZE}px`;
+                        box.style.height = `${cellSize - DOT_SIZE}px`;
                         board.appendChild(box);
                         boxes[`${r}-${c}`] = 0; // 미점령
                     }
@@ -150,9 +195,9 @@
                         lineContainer.className =
                             "absolute cursor-pointer flex items-center justify-center";
                         // 모바일 터치 영역 확장을 위해 패딩 성격의 크기 설정
-                        lineContainer.style.top = `${r * CELL_SIZE - 10}px`;
-                        lineContainer.style.left = `${c * CELL_SIZE + DOT_SIZE}px`;
-                        lineContainer.style.width = `${CELL_SIZE - DOT_SIZE}px`;
+                        lineContainer.style.top = `${r * cellSize - 10}px`;
+                        lineContainer.style.left = `${c * cellSize + DOT_SIZE}px`;
+                        lineContainer.style.width = `${cellSize - DOT_SIZE}px`;
                         lineContainer.style.height = `${DOT_SIZE + 20}px`;
 
                         const visualLine = document.createElement("div");
@@ -180,10 +225,10 @@
                         const lineContainer = document.createElement("div");
                         lineContainer.className =
                             "absolute cursor-pointer flex items-center justify-center";
-                        lineContainer.style.top = `${r * CELL_SIZE + DOT_SIZE}px`;
-                        lineContainer.style.left = `${c * CELL_SIZE - 10}px`;
+                        lineContainer.style.top = `${r * cellSize + DOT_SIZE}px`;
+                        lineContainer.style.left = `${c * cellSize - 10}px`;
                         lineContainer.style.width = `${DOT_SIZE + 20}px`;
-                        lineContainer.style.height = `${CELL_SIZE - DOT_SIZE}px`;
+                        lineContainer.style.height = `${cellSize - DOT_SIZE}px`;
 
                         const visualLine = document.createElement("div");
                         visualLine.id = `vline-${lineKey}`;
@@ -206,8 +251,8 @@
                         const dot = document.createElement("div");
                         dot.className =
                             "absolute bg-slate-400 rounded-full shadow-md z-10";
-                        dot.style.top = `${r * CELL_SIZE}px`;
-                        dot.style.left = `${c * CELL_SIZE}px`;
+                        dot.style.top = `${r * cellSize}px`;
+                        dot.style.left = `${c * cellSize}px`;
                         dot.style.width = `${DOT_SIZE}px`;
                         dot.style.height = `${DOT_SIZE}px`;
                         board.appendChild(dot);
